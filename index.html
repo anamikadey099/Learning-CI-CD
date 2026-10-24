@@ -1,10 +1,923 @@
 <!DOCTYPE html>
-<html>
-<body>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokéDex Nexus - Master Explorer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pokeRed: '#FF1C1C',
+                        pokeDarkRed: '#CC0000',
+                        pokeDark: '#121212',
+                        pokeCard: '#1E293B',
+                        // Type colors
+                        typeNormal: '#A8A77A',
+                        typeFire: '#EE8130',
+                        typeWater: '#6390F0',
+                        typeElectric: '#F7D02C',
+                        typeGrass: '#7AC74C',
+                        typeIce: '#96D9D6',
+                        typeFighting: '#C22E28',
+                        typePoison: '#A33EA0',
+                        typeGround: '#E2BF65',
+                        typeFlying: '#A98FF3',
+                        typePsychic: '#F95587',
+                        typeBug: '#A6B91A',
+                        typeRock: '#B6A136',
+                        typeGhost: '#735797',
+                        typeDragon: '#6F35FC',
+                        typeSteel: '#B7B7CE',
+                        typeFairy: '#D685AD',
+                    },
+                    boxShadow: {
+                        'glow-red': '0 0 20px rgba(255, 28, 28, 0.4)',
+                        'glow-blue': '0 0 20px rgba(99, 144, 240, 0.4)',
+                    },
+                    animation: {
+                        'spin-slow': 'spin 8s linear infinite',
+                        'bounce-short': 'bounce 0.5s ease-in-out 1',
+                        'pulse-glow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
 
-<h1>Updated: Automated CI/CD Pipeline is Working Successfully!</h1>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ef4444;
+        }
 
-<p>This is a sample paragraph</p>
+        /* Glassmorphism background effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
+        /* Pokeball silhouette overlay */
+        .pokeball-bg {
+            background-image: radial-gradient(circle at center, transparent 30%, rgba(15, 23, 42, 0.8) 70%), 
+                              url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' opacity='0.03'%3E%3Ccircle cx='50' cy='50' r='45' stroke='white' stroke-width='8' fill='none'/%3E%3Cline x1='5' y1='50' x2='95' y2='50' stroke='white' stroke-width='8'/%3E%3Ccircle cx='50' cy='50' r='15' stroke='white' stroke-width='8' fill='%230f172a'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 100% 100%, 120px 120px;
+        }
+
+        .type-badge {
+            text-shadow: 0px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Card interactive lift effect */
+        .poke-card {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .poke-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        /* Animated Progress Bar */
+        .stat-bar-fill {
+            transition: width 1s ease-out;
+        }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 pokeball-bg flex flex-col min-h-screen selection:bg-red-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-slate-800/80 px-4 lg:px-8 py-3 transition-all">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <!-- Logo Section -->
+            <div class="flex items-center gap-3 cursor-pointer group" id="brandLogo">
+                <div class="relative w-10 h-10 rounded-full bg-gradient-to-b from-red-600 to-white p-0.5 shadow-glow-red group-hover:rotate-180 transition-transform duration-700">
+                    <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute top-0 left-0 right-0 h-1/2 bg-red-600"></div>
+                        <div class="absolute bottom-0 left-0 right-0 h-1/2 bg-slate-100"></div>
+                        <div class="w-full h-1 bg-slate-900 z-10"></div>
+                        <div class="w-3.5 h-3.5 rounded-full bg-white border-2 border-slate-900 z-20 shadow-md"></div>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-xl tracking-wider text-white flex items-center gap-1.5">
+                        POKÉ<span class="text-red-500">NEXUS</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-400 font-medium tracking-widest uppercase -mt-1">PokéAPI Database v2</p>
+                </div>
+            </div>
+
+            <!-- Header Quick Actions -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" title="Toggle Sound Effects" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700/50 flex items-center gap-2 text-xs font-semibold">
+                    <i class="fa-solid fa-volume-high text-red-400" id="soundIcon"></i>
+                    <span class="hidden sm:inline">SFX</span>
+                </button>
+
+                <!-- Favorites Modal Toggle -->
+                <button id="favoritesBtn" title="View Favorites" class="relative p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700/50 flex items-center gap-2 text-xs font-semibold">
+                    <i class="fa-solid fa-heart text-red-500"></i>
+                    <span class="hidden sm:inline">Favorites</span>
+                    <span id="favCountBadge" class="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-950">0</span>
+                </button>
+
+                <!-- Random / Feeling Lucky Button -->
+                <button id="randomBtn" class="bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-semibold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow-lg shadow-red-600/30 hover:shadow-red-500/50 transition-all flex items-center gap-2 active:scale-95">
+                    <i class="fa-solid fa-dice text-white animate-spin-slow"></i>
+                    <span class="hidden sm:inline">Surprise Me</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Controls Banner: Search and Type Filters -->
+        <section class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-800/80">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                
+                <!-- Search Bar -->
+                <div class="relative w-full lg:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" placeholder="Search by name or PokéID..." 
+                        class="w-full pl-11 pr-10 py-3 bg-slate-900/90 border border-slate-700/80 rounded-xl text-slate-100 placeholder-slate-400 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/30 transition text-sm">
+                    <button id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Type Selector Pills -->
+                <div class="w-full lg:w-auto overflow-x-auto pb-2 lg:pb-0 scrollbar-none flex items-center gap-2" id="typeFilters">
+                    <button data-type="all" class="type-pill active bg-red-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition hover:opacity-90 flex-shrink-0 shadow-md">
+                        All
+                    </button>
+                    <!-- JavaScript will dynamically render type buttons here -->
+                </div>
+            </div>
+
+            <!-- Active Stats / Count Bar -->
+            <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                <div>
+                    Displaying <span id="displayedCount" class="text-white font-bold">0</span> of <span id="totalCount" class="text-white font-bold">0</span> Pokémon
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="sortBy" class="hidden sm:inline">Sort by:</label>
+                    <select id="sortBy" class="bg-slate-900 border border-slate-700 rounded-lg text-slate-200 text-xs px-2.5 py-1 focus:outline-none focus:border-red-500">
+                        <option value="id-asc">ID (Lowest First)</option>
+                        <option value="id-desc">ID (Highest First)</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="hp-desc">Highest HP</option>
+                        <option value="attack-desc">Highest Attack</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading State Spinner -->
+        <div id="loadingSpinner" class="flex flex-col items-center justify-center py-20 space-y-4">
+            <div class="relative w-16 h-16 rounded-full bg-slate-800 border-4 border-slate-700 animate-spin flex items-center justify-center">
+                <div class="w-full h-0.5 bg-slate-700"></div>
+                <div class="w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-700 absolute"></div>
+            </div>
+            <p class="text-slate-400 font-medium text-sm animate-pulse">Scanning the Kanto & Paldea Dex...</p>
+        </div>
+
+        <!-- Pokémon Grid -->
+        <section id="pokemonGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 hidden">
+            <!-- Dynamic Cards inserted here -->
+        </section>
+
+        <!-- Empty State / Not Found -->
+        <div id="noResults" class="hidden flex-col items-center justify-center py-16 text-center space-y-3 glass-panel rounded-2xl">
+            <div class="w-16 h-16 rounded-full bg-slate-800/80 flex items-center justify-center text-red-400 text-2xl">
+                <i class="fa-solid fa-ghost"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white">No Pokémon Found</h3>
+            <p class="text-slate-400 text-sm max-w-sm">We couldn't find any Pokémon matching your search criteria. Try clearing filters or searching for another term.</p>
+            <button id="resetFiltersBtn" class="mt-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl transition">
+                Reset All Filters
+            </button>
+        </div>
+
+        <!-- Load More Container -->
+        <div id="loadMoreContainer" class="flex justify-center pt-4 hidden">
+            <button id="loadMoreBtn" class="glass-panel hover:bg-slate-800/90 border border-slate-700/80 text-slate-200 hover:text-white px-8 py-3 rounded-2xl font-semibold text-sm transition shadow-lg flex items-center gap-2 group">
+                <span>Load More Pokémon</span>
+                <i class="fa-solid fa-angle-down group-hover:translate-y-0.5 transition-transform"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-800/80 py-6 glass-panel">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
+            <p>Powered by <a href="https://pokeapi.co/" target="_blank" class="text-red-400 hover:underline">PokéAPI</a>. Official Pokémon graphics and names are trademarks of Nintendo & Game Freak.</p>
+            <p class="text-slate-600">Built with HTML5, Tailwind CSS, and Vanilla JS</p>
+        </div>
+    </footer>
+
+    <!-- Pokémon Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="modalContainer" class="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col">
+            
+            <!-- Modal Header Background Accent -->
+            <div id="modalHeaderBg" class="h-32 bg-gradient-to-r from-slate-800 to-slate-900 relative p-6 flex justify-between items-start">
+                <span id="modalId" class="text-3xl font-black text-white/20 tracking-wider">#000</span>
+                <button id="closeModalBtn" class="w-9 h-9 rounded-full bg-slate-950/40 hover:bg-slate-950/80 text-slate-300 hover:text-white flex items-center justify-center backdrop-blur-sm transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="px-6 pb-6 pt-0 overflow-y-auto space-y-6 flex-1 relative -mt-16">
+                
+                <!-- Main Header Info -->
+                <div class="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
+                    <div class="relative group">
+                        <div id="modalGlow" class="absolute inset-0 rounded-full blur-xl opacity-50 bg-red-500"></div>
+                        <img id="modalImg" src="" alt="Pokemon Artwork" class="relative w-36 h-36 object-contain drop-shadow-2xl">
+                    </div>
+                    <div class="space-y-1.5 flex-1">
+                        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2" id="modalTypes">
+                            <!-- Badges -->
+                        </div>
+                        <h2 id="modalName" class="text-3xl font-black capitalize text-white tracking-wide">Pokémon Name</h2>
+                        <p id="modalSpecies" class="text-xs text-slate-400 font-medium">The Seed Pokémon</p>
+                    </div>
+                    <!-- Favorite Action Button inside Modal -->
+                    <button id="modalFavBtn" class="p-3 rounded-2xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-400 transition flex items-center justify-center">
+                        <i class="fa-solid fa-heart text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Bio Description -->
+                <p id="modalFlavorText" class="text-slate-300 text-sm leading-relaxed bg-slate-950/50 p-4 rounded-2xl border border-slate-800/60 italic">
+                    Loading Pokédex entry details...
+                </p>
+
+                <!-- Dimensions & Abilities Pill Box -->
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-2xl">
+                        <span class="block text-[10px] uppercase font-bold text-slate-500">Height</span>
+                        <span id="modalHeight" class="text-sm font-bold text-slate-200">0.7 m</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-2xl">
+                        <span class="block text-[10px] uppercase font-bold text-slate-500">Weight</span>
+                        <span id="modalWeight" class="text-sm font-bold text-slate-200">6.9 kg</span>
+                    </div>
+                    <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-2xl">
+                        <span class="block text-[10px] uppercase font-bold text-slate-500">Abilities</span>
+                        <span id="modalAbilities" class="text-xs font-bold text-slate-200 truncate block capitalize">Overgrow</span>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-400">Base Statistics</h3>
+                    <div id="modalStats" class="space-y-2.5">
+                        <!-- Stat bars will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Favorites Drawer Modal -->
+    <div id="favDrawer" class="fixed inset-0 z-50 flex justify-end bg-slate-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="favDrawerContainer" class="w-full max-w-md bg-slate-900 border-l border-slate-800 h-full p-6 flex flex-col transform translate-x-full transition-transform duration-300 shadow-2xl">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-heart text-red-500 text-lg"></i>
+                    <h2 class="text-lg font-bold text-white">Your Saved Pokémon</h2>
+                </div>
+                <button id="closeFavBtn" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- List of Saved Pokemon -->
+            <div id="favList" class="flex-1 overflow-y-auto py-4 space-y-3">
+                <!-- Dynamically populated or empty message -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio & Interaction Logic -->
+    <script>
+        // --- TYPE COLOR DICTIONARY ---
+        const TYPE_COLORS = {
+            normal: { bg: '#A8A77A', border: 'border-amber-600/30', gradient: 'from-amber-600/20 to-slate-900' },
+            fire: { bg: '#EE8130', border: 'border-orange-500/30', gradient: 'from-orange-600/30 to-slate-900' },
+            water: { bg: '#6390F0', border: 'border-blue-500/30', gradient: 'from-blue-600/30 to-slate-900' },
+            electric: { bg: '#F7D02C', border: 'border-yellow-500/30', gradient: 'from-yellow-500/30 to-slate-900' },
+            grass: { bg: '#7AC74C', border: 'border-green-500/30', gradient: 'from-emerald-600/30 to-slate-900' },
+            ice: { bg: '#96D9D6', border: 'border-cyan-400/30', gradient: 'from-cyan-500/30 to-slate-900' },
+            fighting: { bg: '#C22E28', border: 'border-red-700/30', gradient: 'from-red-800/30 to-slate-900' },
+            poison: { bg: '#A33EA0', border: 'border-purple-500/30', gradient: 'from-purple-600/30 to-slate-900' },
+            ground: { bg: '#E2BF65', border: 'border-amber-700/30', gradient: 'from-amber-700/30 to-slate-900' },
+            flying: { bg: '#A98FF3', border: 'border-indigo-400/30', gradient: 'from-indigo-500/30 to-slate-900' },
+            psychic: { bg: '#F95587', border: 'border-pink-500/30', gradient: 'from-pink-600/30 to-slate-900' },
+            bug: { bg: '#A6B91A', border: 'border-lime-500/30', gradient: 'from-lime-600/30 to-slate-900' },
+            rock: { bg: '#B6A136', border: 'border-yellow-700/30', gradient: 'from-yellow-800/30 to-slate-900' },
+            ghost: { bg: '#735797', border: 'border-purple-800/30', gradient: 'from-purple-900/30 to-slate-900' },
+            dragon: { bg: '#6F35FC', border: 'border-indigo-600/30', gradient: 'from-indigo-800/30 to-slate-900' },
+            steel: { bg: '#B7B7CE', border: 'border-slate-400/30', gradient: 'from-slate-500/30 to-slate-900' },
+            fairy: { bg: '#D685AD', border: 'border-rose-300/30', gradient: 'from-rose-400/30 to-slate-900' }
+        };
+
+        const TYPES_LIST = Object.keys(TYPE_COLORS);
+
+        // --- APP STATE ---
+        let allPokemonList = []; // Array of basic { name, url }
+        let loadedPokemonDetails = []; // Array of fetched detailed Pokemon data
+        let filteredPokemon = [];
+        let favorites = JSON.parse(localStorage.getItem('poke_nexus_favs') || '[]');
+        let currentPage = 0;
+        const PAGE_SIZE = 25;
+        let selectedType = 'all';
+        let searchQuery = '';
+        let soundEnabled = true;
+        let activeModalPokemon = null;
+
+        // --- AUDIO SYNTHESIS (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(200, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'open') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'favorite') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {
+                console.warn("Audio Context Error", e);
+            }
+        }
+
+        // --- DOM ELEMENTS ---
+        const pokemonGrid = document.getElementById('pokemonGrid');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const noResults = document.getElementById('noResults');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const typeFiltersContainer = document.getElementById('typeFilters');
+        const displayedCountEl = document.getElementById('displayedCount');
+        const totalCountEl = document.getElementById('totalCount');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreContainer = document.getElementById('loadMoreContainer');
+        const sortBySelect = document.getElementById('sortBy');
+        const soundToggleBtn = document.getElementById('soundToggleBtn');
+        const soundIcon = document.getElementById('soundIcon');
+        const randomBtn = document.getElementById('randomBtn');
+        const favoritesBtn = document.getElementById('favoritesBtn');
+        const favCountBadge = document.getElementById('favCountBadge');
+
+        // Modal DOM Elements
+        const detailModal = document.getElementById('detailModal');
+        const modalContainer = document.getElementById('modalContainer');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalHeaderBg = document.getElementById('modalHeaderBg');
+        const modalImg = document.getElementById('modalImg');
+        const modalGlow = document.getElementById('modalGlow');
+        const modalId = document.getElementById('modalId');
+        const modalName = document.getElementById('modalName');
+        const modalSpecies = document.getElementById('modalSpecies');
+        const modalTypes = document.getElementById('modalTypes');
+        const modalFlavorText = document.getElementById('modalFlavorText');
+        const modalHeight = document.getElementById('modalHeight');
+        const modalWeight = document.getElementById('modalWeight');
+        const modalAbilities = document.getElementById('modalAbilities');
+        const modalStats = document.getElementById('modalStats');
+        const modalFavBtn = document.getElementById('modalFavBtn');
+
+        // Favorites Drawer DOM
+        const favDrawer = document.getElementById('favDrawer');
+        const favDrawerContainer = document.getElementById('favDrawerContainer');
+        const closeFavBtn = document.getElementById('closeFavBtn');
+        const favList = document.getElementById('favList');
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTypeFilterPills();
+            initApp();
+            setupEventListeners();
+            updateFavBadge();
+        });
+
+        // Render Type Filter Pills dynamically
+        function renderTypeFilterPills() {
+            TYPES_LIST.forEach(type => {
+                const btn = document.createElement('button');
+                btn.dataset.type = type;
+                btn.className = `type-pill bg-slate-900 text-slate-300 hover:text-white border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition hover:border-slate-600 flex-shrink-0`;
+                btn.innerText = type;
+                typeFiltersContainer.appendChild(btn);
+            });
+        }
+
+        // Fetch Initial Base Master List from PokéAPI
+        async function initApp() {
+            try {
+                // Fetch first 250 pokemon for smooth demo performance & variety
+                const res = await fetch('https://pokeapi.co/api/v2/pokemon?limit=250&offset=0');
+                const data = await res.json();
+                allPokemonList = data.results;
+                totalCountEl.innerText = allPokemonList.length;
+
+                // Load initial batch details
+                await loadNextBatch();
+                loadingSpinner.classList.add('hidden');
+                pokemonGrid.classList.remove('hidden');
+            } catch (err) {
+                console.error('Failed to load initial Pokemon index', err);
+                loadingSpinner.innerHTML = `<p class="text-red-400 font-medium">Failed to connect to PokéAPI. Please refresh.</p>`;
+            }
+        }
+
+        // Fetch detailed data for a list batch
+        async function loadNextBatch() {
+            const start = currentPage * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            const slice = allPokemonList.slice(start, end);
+
+            if (slice.length === 0) return;
+
+            const detailPromises = slice.map(item => fetch(item.url).then(res => res.json()));
+            const newDetails = await Promise.all(detailPromises);
+
+            loadedPokemonDetails = [...loadedPokemonDetails, ...newDetails];
+            currentPage++;
+
+            applyFiltersAndRender();
+        }
+
+        // Apply Search, Type Filter, & Sorting
+        function applyFiltersAndRender() {
+            let result = [...loadedPokemonDetails];
+
+            // Filter by Search Query
+            if (searchQuery.trim() !== '') {
+                const query = searchQuery.toLowerCase().trim();
+                result = result.filter(p => 
+                    p.name.toLowerCase().includes(query) || 
+                    p.id.toString() === query
+                );
+            }
+
+            // Filter by Type
+            if (selectedType !== 'all') {
+                result = result.filter(p => p.types.some(t => t.type.name === selectedType));
+            }
+
+            // Sort Result
+            const sortBy = sortBySelect.value;
+            result.sort((a, b) => {
+                if (sortBy === 'id-asc') return a.id - b.id;
+                if (sortBy === 'id-desc') return b.id - a.id;
+                if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
+                if (sortBy === 'hp-desc') return getStat(b, 'hp') - getStat(a, 'hp');
+                if (sortBy === 'attack-desc') return getStat(b, 'attack') - getStat(a, 'attack');
+                return 0;
+            });
+
+            filteredPokemon = result;
+            displayedCountEl.innerText = filteredPokemon.length;
+
+            renderGrid(filteredPokemon);
+
+            // Toggle Load More Button Visibility
+            if (loadedPokemonDetails.length < allPokemonList.length && selectedType === 'all' && searchQuery === '') {
+                loadMoreContainer.classList.remove('hidden');
+            } else {
+                loadMoreContainer.classList.add('hidden');
+            }
+        }
+
+        // Helper: Extract Stat value safely
+        function getStat(pokemon, statName) {
+            const found = pokemon.stats.find(s => s.stat.name === statName);
+            return found ? found.base_stat : 0;
+        }
+
+        // Render Pokémon Cards into Grid
+        function renderGrid(pokemonList) {
+            pokemonGrid.innerHTML = '';
+
+            if (pokemonList.length === 0) {
+                noResults.classList.remove('hidden');
+                noResults.classList.add('flex');
+                return;
+            } else {
+                noResults.classList.add('hidden');
+                noResults.classList.remove('flex');
+            }
+
+            pokemonList.forEach(p => {
+                const primaryType = p.types[0].type.name;
+                const typeTheme = TYPE_COLORS[primaryType] || TYPE_COLORS.normal;
+                const formattedId = `#${p.id.toString().padStart(3, '0')}`;
+                const artwork = p.sprites.other['official-artwork'].front_default || p.sprites.front_default;
+                const isFav = favorites.includes(p.id);
+
+                const card = document.createElement('div');
+                card.className = `poke-card glass-panel rounded-2xl p-4 flex flex-col justify-between cursor-pointer relative overflow-hidden border ${typeTheme.border} group`;
+                card.onclick = () => openModal(p);
+
+                // Top Card Info Header
+                card.innerHTML = `
+                    <div class="absolute inset-0 bg-gradient-to-b ${typeTheme.gradient} opacity-40 group-hover:opacity-70 transition-opacity"></div>
+                    <div class="relative z-10 flex items-center justify-between">
+                        <span class="text-xs font-black text-slate-400/80 tracking-wider">${formattedId}</span>
+                        <button onclick="event.stopPropagation(); toggleFavorite(${p.id})" class="p-1.5 text-slate-400 hover:text-red-500 transition active:scale-125">
+                            <i class="${isFav ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart"></i>
+                        </button>
+                    </div>
+
+                    <!-- Pokemon Image -->
+                    <div class="relative z-10 my-3 flex justify-center">
+                        <img src="${artwork}" alt="${p.name}" loading="lazy" class="w-28 h-28 object-contain drop-shadow-md group-hover:scale-110 transition-transform duration-300">
+                    </div>
+
+                    <!-- Bottom Details -->
+                    <div class="relative z-10 space-y-2">
+                        <h3 class="text-base font-extrabold capitalize text-white text-center tracking-wide group-hover:text-red-400 transition-colors">${p.name}</h3>
+                        
+                        <!-- Badges -->
+                        <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                            ${p.types.map(t => {
+                                const tBg = TYPE_COLORS[t.type.name]?.bg || '#777';
+                                return `<span class="type-badge text-[10px] font-bold text-white uppercase px-2 py-0.5 rounded-md shadow-sm" style="background-color: ${tBg}">${t.type.name}</span>`;
+                            }).join('')}
+                        </div>
+
+                        <!-- Mini Stats Summary Bar -->
+                        <div class="pt-2 grid grid-cols-2 gap-1 border-t border-slate-800/80 text-[10px] text-slate-400 font-medium">
+                            <div>ATK: <span class="text-slate-200 font-bold">${getStat(p, 'attack')}</span></div>
+                            <div class="text-right">DEF: <span class="text-slate-200 font-bold">${getStat(p, 'defense')}</span></div>
+                        </div>
+                    </div>
+                `;
+
+                pokemonGrid.appendChild(card);
+            });
+        }
+
+        // --- MODAL LOGIC ---
+        async function openModal(pokemon) {
+            playSound('open');
+            activeModalPokemon = pokemon;
+
+            const primaryType = pokemon.types[0].type.name;
+            const typeTheme = TYPE_COLORS[primaryType] || TYPE_COLORS.normal;
+            const artwork = pokemon.sprites.other['official-artwork'].front_default || pokemon.sprites.front_default;
+
+            modalId.innerText = `#${pokemon.id.toString().padStart(3, '0')}`;
+            modalName.innerText = pokemon.name;
+            modalImg.src = artwork;
+            modalGlow.style.backgroundColor = typeTheme.bg;
+
+            // Height, Weight, Abilities
+            modalHeight.innerText = `${(pokemon.height / 10).toFixed(1)} m`;
+            modalWeight.innerText = `${(pokemon.weight / 10).toFixed(1)} kg`;
+            modalAbilities.innerText = pokemon.abilities.map(a => a.ability.name.replace('-', ' ')).join(', ');
+
+            // Types
+            modalTypes.innerHTML = pokemon.types.map(t => {
+                const tBg = TYPE_COLORS[t.type.name]?.bg || '#777';
+                return `<span class="type-badge text-xs font-bold text-white uppercase px-3 py-1 rounded-lg shadow-sm" style="background-color: ${tBg}">${t.type.name}</span>`;
+            }).join('');
+
+            // Favorite Icon State in Modal
+            updateModalFavBtnState(pokemon.id);
+
+            // Render Stats
+            modalStats.innerHTML = '';
+            pokemon.stats.forEach(s => {
+                const statNameMap = {
+                    'hp': 'HP',
+                    'attack': 'ATK',
+                    'defense': 'DEF',
+                    'special-attack': 'Sp.ATK',
+                    'special-defense': 'Sp.DEF',
+                    'speed': 'SPD'
+                };
+                const displayName = statNameMap[s.stat.name] || s.stat.name;
+                const percentage = Math.min(100, Math.round((s.base_stat / 200) * 100));
+
+                const statRow = document.createElement('div');
+                statRow.className = 'flex items-center gap-3 text-xs';
+                statRow.innerHTML = `
+                    <span class="w-16 font-bold text-slate-400 uppercase">${displayName}</span>
+                    <span class="w-8 font-extrabold text-slate-200 text-right">${s.base_stat}</span>
+                    <div class="flex-1 bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                        <div class="stat-bar-fill h-full rounded-full" style="width: 0%; background-color: ${typeTheme.bg}"></div>
+                    </div>
+                `;
+                modalStats.appendChild(statRow);
+
+                // Animate bar width after open
+                setTimeout(() => {
+                    const bar = statRow.querySelector('.stat-bar-fill');
+                    if (bar) bar.style.width = `${percentage}%`;
+                }, 50);
+            });
+
+            // Fetch Species Flavor Text Description
+            modalFlavorText.innerText = 'Loading entry description...';
+            try {
+                const speciesRes = await fetch(pokemon.species.url);
+                const speciesData = await speciesRes.json();
+                
+                // Get English flavor text
+                const englishEntry = speciesData.flavor_text_entries.find(e => e.language.name === 'en');
+                if (englishEntry) {
+                    modalFlavorText.innerText = englishEntry.flavor_text.replace(/[\n\f]/g, ' ');
+                } else {
+                    modalFlavorText.innerText = 'No description available for this Pokémon.';
+                }
+
+                // Genera / Species title
+                const genusEntry = speciesData.genera.find(g => g.language.name === 'en');
+                modalSpecies.innerText = genusEntry ? genusEntry.genus : '';
+
+            } catch (err) {
+                modalFlavorText.innerText = 'Field research notes unavailable.';
+                modalSpecies.innerText = '';
+            }
+
+            // Show Modal with Animation
+            detailModal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContainer.classList.remove('scale-95');
+            modalContainer.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            playSound('click');
+            detailModal.classList.add('opacity-0', 'pointer-events-none');
+            modalContainer.classList.remove('scale-100');
+            modalContainer.classList.add('scale-95');
+        }
+
+        // --- FAVORITES MANAGEMENT ---
+        function toggleFavorite(id) {
+            playSound('favorite');
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('poke_nexus_favs', JSON.stringify(favorites));
+            updateFavBadge();
+            applyFiltersAndRender();
+
+            if (activeModalPokemon && activeModalPokemon.id === id) {
+                updateModalFavBtnState(id);
+            }
+            renderFavList();
+        }
+
+        function updateModalFavBtnState(id) {
+            const isFav = favorites.includes(id);
+            if (isFav) {
+                modalFavBtn.className = "p-3 rounded-2xl bg-red-600/20 border border-red-500/50 text-red-500 transition flex items-center justify-center active:scale-95";
+                modalFavBtn.innerHTML = `<i class="fa-solid fa-heart text-xl"></i>`;
+            } else {
+                modalFavBtn.className = "p-3 rounded-2xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-400 transition flex items-center justify-center active:scale-95";
+                modalFavBtn.innerHTML = `<i class="fa-regular fa-heart text-xl"></i>`;
+            }
+        }
+
+        function updateFavBadge() {
+            favCountBadge.innerText = favorites.length;
+        }
+
+        function renderFavList() {
+            favList.innerHTML = '';
+            if (favorites.length === 0) {
+                favList.innerHTML = `
+                    <div class="text-center py-12 text-slate-500 space-y-2">
+                        <i class="fa-regular fa-heart text-3xl"></i>
+                        <p class="text-xs font-semibold">No favorites bookmarked yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const favPokemonObjects = loadedPokemonDetails.filter(p => favorites.includes(p.id));
+
+            favPokemonObjects.forEach(p => {
+                const artwork = p.sprites.other['official-artwork'].front_default || p.sprites.front_default;
+                const item = document.createElement('div');
+                item.className = 'glass-panel p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-3 hover:border-slate-700 transition cursor-pointer';
+                item.onclick = () => {
+                    closeFavDrawer();
+                    openModal(p);
+                };
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${artwork}" alt="${p.name}" class="w-12 h-12 object-contain">
+                        <div>
+                            <h4 class="text-sm font-bold capitalize text-white">${p.name}</h4>
+                            <span class="text-[10px] text-slate-400">#${p.id.toString().padStart(3, '0')}</span>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); toggleFavorite(${p.id})" class="p-2 text-red-500 hover:text-slate-400 transition">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                `;
+                favList.appendChild(item);
+            });
+        }
+
+        function openFavDrawer() {
+            playSound('open');
+            renderFavList();
+            favDrawer.classList.remove('opacity-0', 'pointer-events-none');
+            favDrawerContainer.classList.remove('translate-x-full');
+        }
+
+        function closeFavDrawer() {
+            playSound('click');
+            favDrawer.classList.add('opacity-0', 'pointer-events-none');
+            favDrawerContainer.classList.add('translate-x-full');
+        }
+
+        // --- RANDOM POKEMON DISCOVERY ---
+        async function fetchRandomPokemon() {
+            playSound('click');
+            randomBtn.disabled = true;
+            const randomId = Math.floor(Math.random() * 898) + 1; // Gen 1-8 IDs
+
+            try {
+                const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
+                const data = await res.json();
+                openModal(data);
+            } catch (e) {
+                console.error("Failed to fetch random Pokémon", e);
+            } finally {
+                randomBtn.disabled = false;
+            }
+        }
+
+        // --- EVENT LISTENERS setup ---
+        function setupEventListeners() {
+            // Search Input listener
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                clearSearchBtn.classList.toggle('hidden', searchQuery === '');
+                applyFiltersAndRender();
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                clearSearchBtn.classList.add('hidden');
+                applyFiltersAndRender();
+            });
+
+            // Type Filter Pill Click Handler
+            typeFiltersContainer.addEventListener('click', (e) => {
+                const pill = e.target.closest('.type-pill');
+                if (!pill) return;
+
+                playSound('click');
+                document.querySelectorAll('.type-pill').forEach(p => {
+                    p.classList.remove('bg-red-600', 'text-white');
+                    p.classList.add('bg-slate-900', 'text-slate-300');
+                });
+
+                pill.classList.remove('bg-slate-900', 'text-slate-300');
+                pill.classList.add('bg-red-600', 'text-white');
+
+                selectedType = pill.dataset.type;
+                applyFiltersAndRender();
+            });
+
+            // Sort Select
+            sortBySelect.addEventListener('change', () => {
+                playSound('click');
+                applyFiltersAndRender();
+            });
+
+            // Load More
+            loadMoreBtn.addEventListener('click', () => {
+                playSound('click');
+                loadNextBatch();
+            });
+
+            // Sound Toggle
+            soundToggleBtn.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                if (soundEnabled) {
+                    soundIcon.className = "fa-solid fa-volume-high text-red-400";
+                    playSound('click');
+                } else {
+                    soundIcon.className = "fa-solid fa-volume-xmark text-slate-500";
+                }
+            });
+
+            // Modals
+            closeModalBtn.addEventListener('click', closeModal);
+            detailModal.addEventListener('click', (e) => {
+                if (e.target === detailModal) closeModal();
+            });
+
+            // Favorite Drawer
+            favoritesBtn.addEventListener('click', openFavDrawer);
+            closeFavBtn.addEventListener('click', closeFavDrawer);
+            favDrawer.addEventListener('click', (e) => {
+                if (e.target === favDrawer) closeFavDrawer();
+            });
+
+            // Modal Favorite Toggle Button
+            modalFavBtn.addEventListener('click', () => {
+                if (activeModalPokemon) {
+                    toggleFavorite(activeModalPokemon.id);
+                }
+            });
+
+            // Surprise Me / Random Button
+            randomBtn.addEventListener('click', fetchRandomPokemon);
+
+            // Reset Filters empty state button
+            document.getElementById('resetFiltersBtn')?.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                selectedType = 'all';
+                document.querySelectorAll('.type-pill').forEach(p => {
+                    p.classList.remove('bg-red-600', 'text-white');
+                    p.classList.add('bg-slate-900', 'text-slate-300');
+                });
+                const allPill = document.querySelector('[data-type="all"]');
+                if (allPill) {
+                    allPill.classList.remove('bg-slate-900', 'text-slate-300');
+                    allPill.classList.add('bg-red-600', 'text-white');
+                }
+                applyFiltersAndRender();
+            });
+
+            // Header Logo Refresh
+            document.getElementById('brandLogo').addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    </script>
 </body>
 </html>
